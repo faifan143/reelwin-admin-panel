@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  reelwin-admin:
+    container_name: reelwin-admin
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=production
+      - PORT=3007
+      # Add other environment variables here if needed
+      # - API_URL=https://api.example.com
+    volumes:
+      # For persistent storage if needed
+      - ./logs:/app/logs
+    networks:
+      - reelwin-network
+    # Add healthcheck for better container management
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3007/api/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  reelwin-network:
+    driver: bridge
